@@ -6,9 +6,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import com.inm.tracewise.context.TraceWiseContextAware;
-import com.inm.tracewise.context.TraceWiseContextAware.TraceWiseContext;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -17,42 +14,36 @@ import lombok.extern.slf4j.Slf4j;
 public class InventoryManagementProcessing {
 
 	private final RestTemplate restTemplate;
-	 
+
 	@Value("${api.url.customer}")
 	private String url;
-    @Bean
-    public RestTemplate restTemplate(RestTemplateBuilder builder) {
-        return builder.build(); // trace context auto-propagated
-    }
-    
-    public InventoryManagementProcessing(RestTemplateBuilder builder) {
-        this.restTemplate = builder.build();
 
-    }
+	@Bean
+	public RestTemplate restTemplate(RestTemplateBuilder builder) {
+		return builder.build(); // trace context auto-propagated
+	}
 
-	public void fetchCustomer() {	
+	public InventoryManagementProcessing(RestTemplateBuilder builder) {
+		this.restTemplate = builder.build();
+
+	}
+
+	public void fetchCustomer() {
 		log.info("customerInfo");
 		fetchCustomerThread();
-		
+
 	}
 
 	private void fetchCustomerThread() {
-		TraceWiseContext traceContext = TraceWiseContextAware.setTraceContext();
 		(new Thread(() -> {
-			traceContext.set();
 			log.info("New Thread");
 			fetchCustomerInfo();
-			traceContext.clear();
 		})).start();
 	}
 
-
-
-	private void fetchCustomerInfo() {        
-		restTemplate.getForObject(url+"/search", String.class);
+	private void fetchCustomerInfo() {
+		restTemplate.getForObject(url + "/search", String.class);
 		log.info("Fetch customer information ");
 	}
-	
-	
-}
 
+}
